@@ -3,6 +3,21 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  publication-hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan full Git history for secrets
+        # Gitleaks 8.30.1, immutable official Docker Hub image; redact all matches.
+        run: >-
+          docker run --rm --network none --read-only --cap-drop ALL
+          --security-opt no-new-privileges
+          -v "$GITHUB_WORKSPACE:/repo:ro"
+          zricethezav/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          git /repo --log-opts=--all --redact=100 --no-banner
   real-slice:
     runs-on: ubuntu-latest
     timeout-minutes: 25

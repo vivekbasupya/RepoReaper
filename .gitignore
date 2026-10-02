@@ -1,16 +1,52 @@
+# Installed dependencies and local tooling
 .venv/
+venv/
+env/
 .tools/
 .pnpm-store/
 __pycache__/
-*.pyc
+*.py[cod]
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
 node_modules/
 dist/
+build/
+# Secrets and machine-specific environment; only the sanitized template is shared
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.aws/
+.ssh/
+.npmrc
+.pypirc
+# Runtime data, local databases and backups (schema migrations remain tracked)
 .data/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+backups/
+*.log
+# Disposable test/build output; curated evidence in docs is intentionally shared
 test-results/
 playwright-report/
+coverage/
+.coverage
+.coverage.*
+htmlcov/
 *.egg-info/
 *.tsbuildinfo
+# Personal editor/OS state
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini

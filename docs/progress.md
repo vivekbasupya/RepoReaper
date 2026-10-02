@@ -58,7 +58,14 @@ failures or skips; 9 unit checks passed; Ruff and mypy (domain/config/languages)
 Two real Playwright tests passed; desktop/mobile evidence and Monaco diff were inspected.
 See `architecture/gate-report.md` for exact scenario mapping, resource limits, observed
 measurements, reproduced failures and scope. API metadata p95 was 33.12ms over 20 samples;
-two runner controllers respected one shared slot. CI is defined, not remotely verified.
+two runner controllers respected one shared slot. The initial GitHub Actions workflow passed
+in run 37052607733; later commits require their own CI evidence.
+
+Publication audit on 2026-10-03: full two-commit history scanned by Gitleaks 8.30.1, no
+leaks found. Two actual generated local credentials were absent from all 101 historical
+blobs; local dependencies/data remained excluded. Expanded Git/Docker environment-variant,
+key, editor and transient-data exclusions; 18 Git ignore probes passed. Added a full-history
+CI secret scan. Docker context verified nine local-file exclusions with template/source retained.
 
 Next: M1 linked retry with explicit configuration and idempotency; replay/reconnect persistence,
 cancel transition tests, truthful metadata, loading/error/disconnected states. Preserve the
