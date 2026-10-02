@@ -1,0 +1,23 @@
+name: Feature proposal
+description: Propose a focused change within the milestone roadmap.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and intended behavior
+    validations:
+      required: true
+  - type: textarea
+    id: milestone
+    attributes:
+      label: Milestone and boundaries
+      description: Explain how this relates to the specification and current roadmap.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: Describe an observable result and how it would be verified.

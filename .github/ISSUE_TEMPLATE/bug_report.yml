@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a reproducible RepoReaper problem with sanitized evidence.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "For security issues, follow SECURITY.md. Never attach .env, tokens, or private repository source."
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      description: Include the RepoReaper commit and OS/Docker engine.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Include fixture/language and the exact commands or UI actions.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized evidence
+      description: Bounded logs, screenshots, failing test and result state. Remove secrets first.

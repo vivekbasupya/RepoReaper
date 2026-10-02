@@ -1,7 +1,9 @@
 # RepoReaper implementation progress
 
 Specification: `requirement.md` v1.2, read in full before implementation.
-Workspace initially empty; no applicable AGENTS.md. No external publication authorized.
+Workspace initially empty; no applicable AGENTS.md. Public project-source publication to
+vivekbasupya/RepoReaper authorized on 2026-10-03. Application-created PRs and deployments
+remain disabled. The owner requested no license yet.
 
 ## Architecture and decisions
 
