@@ -1,0 +1,16 @@
+.venv/
+.tools/
+.pnpm-store/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+node_modules/
+dist/
+.env
+.data/
+test-results/
+playwright-report/
+*.egg-info/
+*.tsbuildinfo

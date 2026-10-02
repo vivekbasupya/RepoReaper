@@ -1,0 +1,74 @@
+name: reporeaper
+x-app: &app
+  image: reporeaper-backend:local
+  build:
+    context: .
+    dockerfile: infra/containers/app.Dockerfile
+    target: backend
+  env_file: .env
+  networks: [control]
+  mem_limit: 384m
+  depends_on:
+    postgres: {condition: service_healthy}
+    redis: {condition: service_healthy}
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment: {POSTGRES_USER: reaper, POSTGRES_PASSWORD: local-only, POSTGRES_DB: reaper}
+    volumes: [postgres:/var/lib/postgresql/data]
+    networks: [control]
+    mem_limit: 256m
+    healthcheck: {test: [CMD-SHELL, "pg_isready -U reaper"], interval: 2s, timeout: 3s, retries: 30}
+  redis:
+    image: redis:7.4.5-alpine
+    networks: [control]
+    mem_limit: 64m
+    command: [redis-server, --maxmemory, 48mb, --maxmemory-policy, noeviction]
+    healthcheck: {test: [CMD, redis-cli, ping], interval: 2s, timeout: 3s, retries: 30}
+  qdrant:
+    image: qdrant/qdrant:v1.19.0@sha256:6c0652f8d6925b22f2f6f0e0a5365a6c9dbc8768bd6e70ccc1cdc14847e452a0
+    networks: [control]
+    volumes: [qdrant:/qdrant/storage]
+    mem_limit: 192m
+  migrate:
+    <<: *app
+    command: [sh, -c, "alembic upgrade head && python -m reporeaper.seed"]
+  api:
+    <<: *app
+    command: [uvicorn, reporeaper.api:app, --host, 0.0.0.0, --port, "8000"]
+    volumes: [artifacts:/data/artifacts]
+  graph:
+    <<: *app
+    command: [celery, -A, reporeaper.worker:celery, worker, --pool=prefork, --concurrency=1, -Q, graph, --loglevel=INFO]
+  dispatcher:
+    <<: *app
+    command: [python, -m, reporeaper.dispatcher]
+    mem_limit: 256m
+  runner:
+    <<: *app
+    image: reporeaper-controller:local
+    build: {context: ., dockerfile: infra/containers/app.Dockerfile, target: runner}
+    profiles: [runner]
+    command: [uvicorn, reporeaper_runner.api:app, --host, 0.0.0.0, --port, "8090"]
+  runner-worker:
+    <<: *app
+    image: reporeaper-controller:local
+    build: {context: ., dockerfile: infra/containers/app.Dockerfile, target: runner}
+    profiles: [runner]
+    command: [python, -m, reporeaper_runner.worker]
+    volumes: [/var/run/docker.sock:/var/run/docker.sock, artifacts:/data/artifacts]
+    mem_limit: 192m
+  web:
+    build: {context: ., dockerfile: infra/containers/web.Dockerfile}
+    ports: ["127.0.0.1:8080:80"]
+    networks: [control]
+    mem_limit: 64m
+  gate:
+    <<: *app
+    image: reporeaper-controller:local
+    profiles: [test]
+    command: [pytest, tests/gate, -v, --junitxml=/reports/gate.xml]
+    volumes: [./docs/architecture/reports:/reports]
+    environment: {GATE_API_URL: "http://api:8000", GATE_RUNNER_URL: "http://runner:8090"}
+volumes: {postgres: {}, qdrant: {}, artifacts: {}}
+networks: {control: {}}

@@ -1,0 +1,9 @@
+# Trusted gate controller only. Never mount daemon socket into repository code.
+services:
+  graph:
+    environment: {GATE_FAULTS_ENABLED: "1"}
+  dispatcher:
+    environment: {GATE_FAULTS_ENABLED: "1"}
+  gate:
+    build: {context: ., dockerfile: infra/containers/app.Dockerfile, target: runner}
+    volumes: [/var/run/docker.sock:/var/run/docker.sock]

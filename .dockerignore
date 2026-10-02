@@ -1,0 +1,9 @@
+.git
+.venv
+.tools
+.pnpm-store
+**/node_modules
+**/dist
+.env
+.data
+**/__pycache__

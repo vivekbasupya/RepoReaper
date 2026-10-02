@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "scope": "Curated local M0; no production throughput claim",
+  "api_latency_samples": 20,
+  "api_p50_ms": 16.55,
+  "api_p95_ms": 33.12,
+  "runner_controllers": 2,
+  "configured_global_slots": 1,
+  "observed_max_reservations": 1,
+  "execution_wall_time_includes_setup_and_cleanup": [
+    {
+      "target": "python",
+      "samples": 2,
+      "mean_seconds": "1.420",
+      "max_seconds": "1.560"
+    },
+    {
+      "target": "typescript",
+      "samples": 2,
+      "mean_seconds": "5.120",
+      "max_seconds": "5.456"
+    }
+  ],
+  "postgres": {
+    "database_bytes": 13405331
+  },
+  "docker_stats": [
+    {
+      "BlockIO": "0B / 20.9MB",
+      "CPUPerc": "1.57%",
+      "Container": "c76f87cf315ecf5d114d0a0ca61df1376c150e27614199b4b448eaa53fb6c8b1",
+      "ID": "c76f87cf315e",
+      "MemPerc": "49.39%",
+      "MemUsage": "94.82MiB / 192MiB",
+      "Name": "reaper-gate-runner-b",
+      "NetIO": "45.6kB / 54.3kB",
+      "PIDs": "2"
+    },
+    {
+      "BlockIO": "3.06MB / 0B",
+      "CPUPerc": "4.00%",
+      "Container": "b7aef2170a1df46658f56b241f6d9e266ca33ac8e451a3bb9941c86bd82d884f",
+      "ID": "b7aef2170a1d",
+      "MemPerc": "10.25%",
+      "MemUsage": "6.559MiB / 64MiB",
+      "Name": "reporeaper-redis-1",
+      "NetIO": "272kB / 169kB",
+      "PIDs": "6"
+    },
+    {
+      "BlockIO": "1.22MB / 31.3MB",
+      "CPUPerc": "1.77%",
+      "Container": "a2fd9145e4ff67a5e25cdcff7589e705df7ae37442aa0d172c3d8e5f3ed6624c",
+      "ID": "a2fd9145e4ff",
+      "MemPerc": "38.20%",
+      "MemUsage": "146.7MiB / 384MiB",
+      "Name": "reporeaper-gate-run-468b2ffa60b7",
+      "NetIO": "2.99MB / 386kB",
+      "PIDs": "17"
+    },
+    {
+      "BlockIO": "10.5MB / 0B",
+      "CPUPerc": "1.50%",
+      "Container": "82099916b1f0e60b837a65730369cd0f8a50608008f0cc10a4e9226bbfe14414",
+      "ID": "82099916b1f0",
+      "MemPerc": "47.67%",
+      "MemUsage": "91.52MiB / 192MiB",
+      "Name": "reporeaper-runner-worker-1",
+      "NetIO": "248kB / 322kB",
+      "PIDs": "3"
+    },
+    {
+      "BlockIO": "905kB / 17.2MB",
+      "CPUPerc": "0.19%",
+      "Container": "24e7b2bdb7671702b4135350b9b42ab58d587f330421546def367ee9fb205758",
+      "ID": "24e7b2bdb767",
+      "MemPerc": "18.29%",
+      "MemUsage": "70.24MiB / 384MiB",
+      "Name": "reporeaper-runner-1",
+      "NetIO": "2.5MB / 1.75MB",
+      "PIDs": "6"
+    },
+    {
+      "BlockIO": "410kB / 28.1MB",
+      "CPUPerc": "0.20%",
+      "Container": "463fa09042aa3328f713b031d3495790ab4b328443ae2e7ea7f51a484e43216e",
+      "ID": "463fa09042aa",
+      "MemPerc": "34.18%",
+      "MemUsage": "131.2MiB / 384MiB",
+      "Name": "reporeaper-api-1",
+      "NetIO": "20.1MB / 16.6MB",
+      "PIDs": "6"
+    },
+    {
+      "BlockIO": "0B / 86kB",
+      "CPUPerc": "0.22%",
+      "Container": "be911bcc5e819c7a9319f35722d92a5bb0a1b1c9417d09cb785a75996883bc53",
+      "ID": "be911bcc5e81",
+      "MemPerc": "33.52%",
+      "MemUsage": "128.7MiB / 384MiB",
+      "Name": "reporeaper-graph-1",
+      "NetIO": "697kB / 889kB",
+      "PIDs": "2"
+    },
+    {
+      "BlockIO": "5.99MB / 0B",
+      "CPUPerc": "0.87%",
+      "Container": "a043412117b16d763fee9e6a5be5e7947768c000952b4e7171ee99d44937943d",
+      "ID": "a043412117b1",
+      "MemPerc": "51.50%",
+      "MemUsage": "131.8MiB / 256MiB",
+      "Name": "reporeaper-dispatcher-1",
+      "NetIO": "782kB / 581kB",
+      "PIDs": "3"
+    },
+    {
+      "BlockIO": "7.36MB / 8.19kB",
+      "CPUPerc": "0.00%",
+      "Container": "6fc56128f466a9c2b1918aa081241bc4a32b46dc89ad3086b5b759efd1d4d4d4",
+      "ID": "6fc56128f466",
+      "MemPerc": "23.26%",
+      "MemUsage": "14.89MiB / 64MiB",
+      "Name": "reporeaper-web-1",
+      "NetIO": "5.08MB / 14.1MB",
+      "PIDs": "13"
+    },
+    {
+      "BlockIO": "18.8MB / 8.77MB",
+      "CPUPerc": "0.52%",
+      "Container": "de9b1597efcaf2c27d8cc4b7df81f776f2dbaaff938ef15f4e46d7c1f7dd80df",
+      "ID": "de9b1597efca",
+      "MemPerc": "37.08%",
+      "MemUsage": "71.19MiB / 192MiB",
+      "Name": "reporeaper-qdrant-1",
+      "NetIO": "60.7kB / 29.7kB",
+      "PIDs": "47"
+    },
+    {
+      "BlockIO": "6.1MB / 210MB",
+      "CPUPerc": "5.65%",
+      "Container": "e100cacea077d3062206ed7d3b426fa50d4512d0e08012ea9c40429ccb008c6e",
+      "ID": "e100cacea077",
+      "MemPerc": "19.94%",
+      "MemUsage": "51.05MiB / 256MiB",
+      "Name": "reporeaper-postgres-1",
+      "NetIO": "29.4MB / 54.2MB",
+      "PIDs": "15"
+    }
+  ]
+}

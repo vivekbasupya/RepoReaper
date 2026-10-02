@@ -1,0 +1,49 @@
+name: RepoReaper boundaries
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  real-slice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+      - name: Locked dependencies and unit checks
+        run: |
+          python -m pip install uv==0.12.22
+          uv sync --frozen
+          uv run ruff check .
+          uv run pytest tests/unit -q
+          npm install --global pnpm@11.19.0
+          pnpm --dir apps/web install --frozen-lockfile
+          pnpm --dir apps/web build
+          pnpm --dir apps/web exec playwright install --with-deps chromium --only-shell
+      - name: Real persisted services and isolated profiles
+        run: |
+          uv run python scripts/init_env.py
+          docker build -f infra/containers/python.Dockerfile -t reporeaper-python:local .
+          docker build -f infra/containers/node.Dockerfile -t reporeaper-node:local .
+          uv run python scripts/pin_profiles.py
+          docker compose --profile runner build api runner web
+          docker compose up -d postgres redis qdrant
+          docker compose run --rm migrate
+          docker compose -f compose.yaml -f compose.gate.yaml --profile runner up -d api graph dispatcher runner runner-worker web
+      - name: Mandatory architecture gate without mocks or skips
+        run: docker compose -f compose.yaml -f compose.gate.yaml --profile test run --rm gate
+      - name: Rendered UI and actual interactions
+        run: pnpm --dir apps/web exec playwright test
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporeaper-evidence
+          path: |
+            docs/architecture/reports
+            apps/web/test-results
+          retention-days: 14

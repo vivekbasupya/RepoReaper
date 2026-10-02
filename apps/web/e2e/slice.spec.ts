@@ -1,0 +1,36 @@
+import { expect, test } from '@playwright/test';
+test('real fixture evidence, patch export, replay and mobile layout', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading',{name:'The investigation desk.'})).toBeVisible();
+  await expect(page.getByLabel('Repository')).toBeEnabled();
+  await page.screenshot({path:'../../docs/architecture/reports/desktop-new.png',fullPage:true});
+  await page.getByLabel('Repository').selectOption('typescript-boundary');
+  await page.getByRole('button',{name:'Start investigation',exact:true}).click();
+  await expect(page.getByText('verified fix',{exact:true})).toBeVisible({timeout:90000});
+  await expect(page.getByText('Original boundary failure reproduced',{exact:true})).toBeVisible();
+  await expect(page.getByText('Checks passed',{exact:true})).toBeVisible();
+  await page.screenshot({path:'../../docs/architecture/reports/desktop-evidence.png',fullPage:true});
+  await page.getByRole('tab',{name:'Patch diff'}).click();
+  await expect(page.getByText('Loading code review editor…')).toBeHidden({timeout:30000});
+  const download = page.waitForEvent('download');
+  await page.getByRole('link',{name:'Export patch'}).click();
+  expect((await download).suggestedFilename()).toBe('reporeaper.patch');
+  await page.screenshot({path:'../../docs/architecture/reports/desktop-diff.png',fullPage:true});
+  await page.getByRole('tab',{name:'Activity'}).click();
+  await expect(page.getByText('review · ready',{exact:true})).toBeVisible();
+  await page.setViewportSize({width:390,height:844});
+  await page.getByRole('tab',{name:/Evidence/}).click();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({path:'../../docs/architecture/reports/mobile-evidence.png',fullPage:true});
+});
+test('mixed coverage stays partial and keyboard navigation works', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Repository').selectOption('mixed-boundary');
+  await page.getByRole('button',{name:'Start investigation',exact:true}).click();
+  await expect(page.getByText('partial verification',{exact:true})).toBeVisible({timeout:90000});
+  await expect(page.getByText('verification missing',{exact:true})).toBeVisible();
+  await page.getByRole('tab',{name:'Patch diff'}).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab',{name:'Activity'})).toBeFocused();
+  await page.screenshot({path:'../../docs/architecture/reports/mixed-partial.png',fullPage:true});
+});

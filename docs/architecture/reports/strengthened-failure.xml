@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="17" time="341.739" timestamp="2026-10-02T18:23:16.901639+00:00" hostname="9f79216b27c8"><testcase classname="tests.gate.test_failures" name="test_04_worker_crash_replay_same_execution_id[after_intent]" time="16.158" /><testcase classname="tests.gate.test_failures" name="test_04_worker_crash_replay_same_execution_id[after_checkpoint]" time="15.393" /><testcase classname="tests.gate.test_failures" name="test_04_worker_crash_replay_same_execution_id[after_submission]" time="21.154" /><testcase classname="tests.gate.test_failures" name="test_05_completion_before_wait_projection" time="13.171" /><testcase classname="tests.gate.test_failures" name="test_06_recreate_empty_redis_recovers_durable_commands" time="18.022" /><testcase classname="tests.gate.test_failures" name="test_08_two_apis_two_graph_workers_ownership" time="43.800" /><testcase classname="tests.gate.test_failures" name="test_10_paused_v1_survives_new_build" time="53.774" /><testcase classname="tests.gate.test_gate" name="test_01_two_language_real_review[python-boundary]" time="12.959" /><testcase classname="tests.gate.test_gate" name="test_01_two_language_real_review[typescript-boundary]" time="22.570" /><testcase classname="tests.gate.test_gate" name="test_02_mixed_project_cannot_claim_full_verification" time="6.637" /><testcase classname="tests.gate.test_gate" name="test_03_wait_releases_single_graph_worker" time="20.257" /><testcase classname="tests.gate.test_gate" name="test_idempotency_and_fencing" time="0.190" /><testcase classname="tests.gate.test_gate" name="test_07_runner_cancellation_reclaims_reservations[slow_setup]" time="8.811"><failure message="AssertionError: Timed out; last observed state: False">db = &lt;reporeaper.db.Database object at 0x780215ff4c20&gt;
+runner = &lt;httpx.AsyncClient object at 0x7802160d09e0&gt;, phase = 'slow_setup'
+
+    @pytest.mark.parametrize("phase", ["slow_setup", "slow_test"])
+    async def test_07_runner_cancellation_reclaims_reservations(db, runner, phase):
+        request = await slow_request(runner, phase)
+        await until(
+            lambda: runner_state(runner, request.execution_id), lambda r: r["status"] == "running"
+        )
+    
+        async def child_started():
+            code, names = await docker(
+                "ps", "--filter", f"name=reaper-{request.execution_id}", "--format", "{{.Names}}"
+            )
+            if code or not names.strip():
+                return False
+            code, processes = await docker("top", names.strip(), "-eo", "args")
+            return code == 0 and "time.sleep(120)" in processes
+    
+&gt;       await until(child_started, bool, timeout=8)
+
+tests/gate/test_gate.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+call = &lt;function test_07_runner_cancellation_reclaims_reservations.&lt;locals&gt;.child_started at 0x7802157ccae0&gt;
+predicate = &lt;class 'bool'&gt;, timeout = 8
+
+    async def until(call, predicate, timeout=90):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() &lt; deadline:
+            result = await call()
+            if predicate(result):
+                return result
+            await asyncio.sleep(0.3)
+&gt;       raise AssertionError(f"Timed out; last observed state: {result}")
+E       AssertionError: Timed out; last observed state: False
+
+tests/gate/test_gate.py:36: AssertionError</failure></testcase><testcase classname="tests.gate.test_gate" name="test_07_runner_cancellation_reclaims_reservations[slow_test]" time="23.382"><failure message="AssertionError: Timed out; last observed state: False">db = &lt;reporeaper.db.Database object at 0x7802156c7080&gt;
+runner = &lt;httpx.AsyncClient object at 0x7802156c5e50&gt;, phase = 'slow_test'
+
+    @pytest.mark.parametrize("phase", ["slow_setup", "slow_test"])
+    async def test_07_runner_cancellation_reclaims_reservations(db, runner, phase):
+        request = await slow_request(runner, phase)
+        await until(
+            lambda: runner_state(runner, request.execution_id), lambda r: r["status"] == "running"
+        )
+    
+        async def child_started():
+            code, names = await docker(
+                "ps", "--filter", f"name=reaper-{request.execution_id}", "--format", "{{.Names}}"
+            )
+            if code or not names.strip():
+                return False
+            code, processes = await docker("top", names.strip(), "-eo", "args")
+            return code == 0 and "time.sleep(120)" in processes
+    
+&gt;       await until(child_started, bool, timeout=8)
+
+tests/gate/test_gate.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+call = &lt;function test_07_runner_cancellation_reclaims_reservations.&lt;locals&gt;.child_started at 0x7802156cc9a0&gt;
+predicate = &lt;class 'bool'&gt;, timeout = 8
+
+    async def until(call, predicate, timeout=90):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() &lt; deadline:
+            result = await call()
+            if predicate(result):
+                return result
+            await asyncio.sleep(0.3)
+&gt;       raise AssertionError(f"Timed out; last observed state: {result}")
+E       AssertionError: Timed out; last observed state: False
+
+tests/gate/test_gate.py:36: AssertionError</failure></testcase><testcase classname="tests.gate.test_gate" name="test_09_real_vector_workspace_isolation_and_sandbox" time="19.133" /><testcase classname="tests.gate.test_gate" name="test_durable_command_redelivery_after_lost_delivery" time="14.189" /><testcase classname="tests.gate.test_resources" name="test_shared_capacity_and_resource_measurements" time="25.455" /></testsuite></testsuites>

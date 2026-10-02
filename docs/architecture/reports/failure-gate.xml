@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="6" time="202.846" timestamp="2026-10-02T17:51:00.044580+00:00" hostname="b7da9e0955c5"><testcase classname="tests.gate.test_failures" name="test_04_worker_crash_replay_same_execution_id[after_intent]" time="14.559" /><testcase classname="tests.gate.test_failures" name="test_04_worker_crash_replay_same_execution_id[after_checkpoint]" time="15.603" /><testcase classname="tests.gate.test_failures" name="test_04_worker_crash_replay_same_execution_id[after_submission]" time="20.052" /><testcase classname="tests.gate.test_failures" name="test_05_completion_before_wait_projection" time="14.146" /><testcase classname="tests.gate.test_failures" name="test_06_recreate_empty_redis_recovers_durable_commands" time="20.810" /><testcase classname="tests.gate.test_failures" name="test_08_two_apis_two_graph_workers_ownership" time="113.196"><failure message="AssertionError: Timed out; last observed state: {'id': 'cbe6160f-5ff5-4e7e-be91-b7358712e083', 'fixture': 'python-boundary', 'title': 'Inclusive boundary excludes the maximum', 'status': 'queued', 'outcome': None, 'base_sha': 'de4d2b93377e94f2290e653a6c4275973ad9cfc2', 'version': 1, 'graph_version': '1', 'latest_sequence': 1, 'patch': None, 'patch_sha256': None, 'evidence': [], 'targets': [{'id': 'python', 'path': 'bounds.py', 'root': '.', 'profile': 'python', 'analysis': 'syntax', 'verification': 'available'}], 'mode': 'deterministic_fixture', 'error': None}">api = &lt;httpx.AsyncClient object at 0x781b68610320&gt;
+db = &lt;reporeaper.db.Database object at 0x781b67d02b10&gt;
+
+    async def test_08_two_apis_two_graph_workers_ownership(api, db):
+        code, image = await docker("inspect", "reporeaper-api-1", "--format", "{{.Config.Image}}")
+        assert code == 0
+        await docker("stop", "-t", "5", "reporeaper-graph-1")
+        names = ["reaper-gate-api-a", "reaper-gate-api-b", "reaper-gate-graph-a", "reaper-gate-graph-b"]
+        try:
+            for name in names[:2]:
+                await start_replica(
+                    name,
+                    image.strip(),
+                    ["uvicorn", "reporeaper.api:app", "--host", "0.0.0.0", "--port", "8000"],
+                )
+            for name in names[2:]:
+                await start_replica(
+                    name,
+                    image.strip(),
+                    [
+                        "celery",
+                        "-A",
+                        "reporeaper.worker:celery",
+                        "worker",
+                        "--pool=prefork",
+                        "--concurrency=1",
+                        "-Q",
+                        "graph",
+                        "--loglevel=WARNING",
+                    ],
+                )
+            async with (
+                httpx.AsyncClient(base_url="http://reaper-gate-api-a:8000", timeout=10) as a,
+                httpx.AsyncClient(base_url="http://reaper-gate-api-b:8000", timeout=10) as b,
+            ):
+    
+                async def boot(client):
+                    try:
+                        return (await client.get("/api/v1/session")).status_code == 200
+                    except httpx.HTTPError:
+                        return False
+    
+                await until(lambda: boot(a), bool)
+                await until(lambda: boot(b), bool)
+                key = str(uuid4())
+                first, second = await asyncio.gather(create(a, key=key), create(b, key=key))
+                assert first["id"] == second["id"]
+&gt;               final = await until(
+                    lambda: run_state(a, first["id"]), lambda r: r["status"] == "needs_review"
+                )
+
+tests/gate/test_failures.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+call = &lt;function test_08_two_apis_two_graph_workers_ownership.&lt;locals&gt;.&lt;lambda&gt; at 0x781b6876c400&gt;
+predicate = &lt;function test_08_two_apis_two_graph_workers_ownership.&lt;locals&gt;.&lt;lambda&gt; at 0x781b6876c900&gt;
+timeout = 90
+
+    async def until(call, predicate, timeout=90):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() &lt; deadline:
+            result = await call()
+            if predicate(result):
+                return result
+            await asyncio.sleep(0.3)
+&gt;       raise AssertionError(f"Timed out; last observed state: {result}")
+E       AssertionError: Timed out; last observed state: {'id': 'cbe6160f-5ff5-4e7e-be91-b7358712e083', 'fixture': 'python-boundary', 'title': 'Inclusive boundary excludes the maximum', 'status': 'queued', 'outcome': None, 'base_sha': 'de4d2b93377e94f2290e653a6c4275973ad9cfc2', 'version': 1, 'graph_version': '1', 'latest_sequence': 1, 'patch': None, 'patch_sha256': None, 'evidence': [], 'targets': [{'id': 'python', 'path': 'bounds.py', 'root': '.', 'profile': 'python', 'analysis': 'syntax', 'verification': 'available'}], 'mode': 'deterministic_fixture', 'error': None}
+
+tests/gate/test_gate.py:35: AssertionError</failure></testcase></testsuite></testsuites>
